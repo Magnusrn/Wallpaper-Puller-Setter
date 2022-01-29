@@ -4,6 +4,8 @@ import ctypes
 import os
 import time
 import hashlib
+import sys
+import glob
 from secrets import CLIENT_ID,CLIENT_SECRET,USER_AGENT
 
 def main(subreddit):
@@ -11,9 +13,11 @@ def main(subreddit):
     client_id= CLIENT_ID,
     client_secret=CLIENT_SECRET,
     user_agent=USER_AGENT)
-    current_image_path = "images\\image.jpg"
     
-    for submission in reddit.subreddit(subreddit).top():
+    image_path = os.path.dirname(__file__) + "\\wallpaper.jpg"
+    print(image_path)
+        
+    for submission in reddit.subreddit(subreddit).top("day"):
         if submission.url.endswith(".jpg"):
             file = requests.get(submission.url)
             remote_url = submission.url
@@ -42,21 +46,31 @@ def main(subreddit):
             return m.hexdigest()
         
     def images_identical(): #compares local image to remote
-        if md5Checksum(current_image_path,None)==md5Checksum(None,remote_url): 
+        if md5Checksum(image_path,None)==md5Checksum(None,remote_url): 
             return True
         return False
-        
-    if os.path.exists(current_image_path):
+    
+    if (len(glob.glob(os.path.dirname(__file__) + "\*.jpg"))!=0):
         if not images_identical():
-            os.makedirs("images\\" + time.strftime("/%Y/%m/%d"), exist_ok=True) #make directory for current day
-            os.rename(current_image_path, "images\\%s\\%s.jpg" % (time.strftime("/%Y/%m/%d"),time.strftime("%H%M%S"))) #create file name within folder with current current time. 
-            
-    with open(current_image_path,"wb") as f:
+            sys.stdout.write("Local image differs to remote, updating...") 
+        else:
+            sys.stdout.write("Local image is the same as remote.")
+            return
+    else:
+        sys.stdout.write("no file in folder wtf")
+        
+    with open(image_path,"wb") as f:
         f.write(file.content)
-        filepath = os.getcwd() + "\\" + current_image_path
-        ctypes.windll.user32.SystemParametersInfoW(20, 0, filepath, 1) #idk how but this sets the wallpaper
-       
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path, 1) #idk how but this sets the wallpaper, glob just pulls any image from /images folder as the name would differ depending on time
+  
+subreddit = "analogue" #default subreddit if no cl args given
+
+if len(sys.argv) == 2:
+    subreddit = sys.argv[-1]
+elif len(sys.argv)>2:
+    sys.stdout.write("Incorrect syntax, Program accepts 0 or 1 arguments for subreddit.")
+    exit()
+    
 while True:
-    mins =60
-    main("analog")
-    time.sleep(60*mins)
+    main(subreddit.lower())
+    time.sleep(60) #sleep 1 min 
