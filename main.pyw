@@ -8,6 +8,8 @@ import sys
 import glob
 from secrets import CLIENT_ID,CLIENT_SECRET,USER_AGENT
 
+#lots of code needed removed for .pyw as it doesn't work with print statements(not sure why this is...)
+
 def main(subreddit):
     reddit = praw.Reddit(
     client_id= CLIENT_ID,
@@ -24,7 +26,6 @@ def main(subreddit):
     try: 
         file
     except NameError:
-        print("No .jpg images in the r/%s subreddit" %(subreddit))
         quit()
         
     def md5Checksum(filePath,url):
@@ -50,13 +51,8 @@ def main(subreddit):
         return False
     
     if (len(glob.glob(os.path.dirname(__file__) + "\*.jpg"))!=0):
-        if not images_identical():
-            # sys.stdout.write("Local image differs to remote, updating...") 
-    #     else:
-    #         sys.stdout.write("Local image is the same as remote.")
+        if images_identical():
             return
-    # else:
-    #     sys.stdout.write("no file in folder wtf")
         
     with open(image_path,"wb") as f:
         f.write(file.content)
@@ -64,11 +60,10 @@ def main(subreddit):
   
 subreddit = "analog" #default subreddit if no cl args given
 
-# if len(sys.argv) == 2:
-#     subreddit = sys.argv[-1]
-# elif len(sys.argv)>2:
-#     sys.stdout.write("Incorrect syntax, Program accepts 0 or 1 arguments for subreddit.")
-#     exit()
+if len(sys.argv) == 2:
+    subreddit = sys.argv[-1]
+elif len(sys.argv)>2:
+    exit()
     
 while True:
     main(subreddit.lower())
