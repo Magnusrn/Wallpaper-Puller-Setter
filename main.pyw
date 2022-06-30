@@ -67,4 +67,4 @@ elif len(sys.argv)>2:
     
 while True:
     main(subreddit.lower())
-    time.sleep(60) #sleep 1 min 
+    time.sleep(3600) #sleep 1 hour 
