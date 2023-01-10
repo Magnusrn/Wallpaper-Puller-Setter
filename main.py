@@ -7,6 +7,7 @@ import hashlib
 import sys
 import glob
 from secrets import CLIENT_ID,CLIENT_SECRET,USER_AGENT
+from appscript import app, mactypes
 
 def main(subreddit):
     reddit = praw.Reddit(
@@ -60,8 +61,8 @@ def main(subreddit):
         
     with open(image_path,"wb") as f:
         f.write(file.content)
-        ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path, 1) #idk how but this sets the wallpaper, glob just pulls any image from /images folder as the name would differ depending on time
-  
+        app('Finder').desktop_picture.set(mactypes.File(image_path))  
+
 subreddit = "analog" #default subreddit if no cl args given
 
 # if len(sys.argv) == 2:
@@ -72,4 +73,4 @@ subreddit = "analog" #default subreddit if no cl args given
     
 while True:
     main(subreddit.lower())
-    time.sleep(60) #sleep 1 min 
+    time.sleep(3600) #sleeping 1 hour 
