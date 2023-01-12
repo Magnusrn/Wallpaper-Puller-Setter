@@ -14,14 +14,16 @@ def main(subreddit):
     client_id= CLIENT_ID,
     client_secret=CLIENT_SECRET,
     user_agent=USER_AGENT)
-    
-    image_path = os.path.dirname(__file__) + "\\wallpaper.jpg"
+    print(os.path.dirname(__file__))    
+    image_path = os.path.dirname(__file__) + "/wallpaper.jpg"
         
     for submission in reddit.subreddit(subreddit).top("day"):
         if submission.url.endswith(".jpg"):
+            print("file found")
             file = requests.get(submission.url)
             remote_url = submission.url
             break
+    print("hi")
     try: 
         file
     except NameError:
@@ -47,17 +49,18 @@ def main(subreddit):
         
     def images_identical(): #compares local image to remote
         if md5Checksum(image_path,None)==md5Checksum(None,remote_url): 
+            print("images identical")
             return True
         return False
     
-    if (len(glob.glob(os.path.dirname(__file__) + "\*.jpg"))!=0):
+    if (len(glob.glob(os.path.dirname(__file__) + "/*.jpg"))!=0):
         if not images_identical():
-            # sys.stdout.write("Local image differs to remote, updating...") 
-    #     else:
-    #         sys.stdout.write("Local image is the same as remote.")
+            print("Local image differs to remote, updating...") 
+        else:
+            print("Local image is the same as remote.")
             return
-    # else:
-    #     sys.stdout.write("no file in folder wtf")
+    else:       
+        print("no file in folder wtf")
         
     with open(image_path,"wb") as f:
         f.write(file.content)
@@ -68,9 +71,9 @@ subreddit = "analog" #default subreddit if no cl args given
 # if len(sys.argv) == 2:
 #     subreddit = sys.argv[-1]
 # elif len(sys.argv)>2:
-#     sys.stdout.write("Incorrect syntax, Program accepts 0 or 1 arguments for subreddit.")
+#     print("Incorrect syntax, Program accepts 0 or 1 arguments for subreddit.")
 #     exit()
     
 while True:
     main(subreddit.lower())
-    time.sleep(3600) #sleeping 1 hour 
+    time.sleep(5) #sleeping 1 hour 
