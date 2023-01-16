@@ -9,3 +9,5 @@ requests==2.27.1
 update-checker==0.18.0
 urllib3==1.26.8
 websocket-client==1.2.3
+
+appscript~=1.2.2
