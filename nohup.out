@@ -1,0 +1,9 @@
+Version 7.5.0 of praw is outdated. Version 7.6.1 was released Friday November 11, 2022.
+Version 7.5.0 of praw is outdated. Version 7.6.1 was released Friday November 11, 2022.
+file found
+hi
+setting desktop wallpaper
+Traceback (most recent call last):
+  File "/Users/magnus/Documents/Wallpaper-Puller-Setter/main.py", line 85, in <module>
+    time.sleep(900)  # seconds
+KeyboardInterrupt
