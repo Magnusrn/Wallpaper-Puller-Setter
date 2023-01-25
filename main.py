@@ -1,8 +1,11 @@
 import praw
+import sys
 import requests
 import os
 import time
 import subprocess
+import Quartz
+
 import hashlib
 import glob
 from secrets import CLIENT_ID, CLIENT_SECRET, USER_AGENT
@@ -18,11 +21,9 @@ def main(subreddit):
 
     for submission in reddit.subreddit(subreddit).top("day"):
         if submission.url.endswith(".jpg"):
-            print("file found")
             file = requests.get(submission.url)
             remote_url = submission.url
             break
-    print("hi")
     try:
         file
     except NameError:
@@ -59,7 +60,10 @@ def main(subreddit):
     #         print("Local image is the same as remote.")
     #         return
     # else:
-    #     print("no file in folder")
+    #     print()()("no file in folder")
+
+    def set_desktop_background_app():
+        os.system("open SetWallpaper.app")
 
     def set_desktop_background():
         abspath = os.path.abspath("wallpaper.jpg")
@@ -78,6 +82,11 @@ def main(subreddit):
 
 subreddit = "analog"  # default subreddit if no cl args given
 
+
+def isScreenLocked():
+    return 'CGSSessionScreenIsLocked' in Quartz.CGSessionCopyCurrentDictionary().keys()
+
+
 # if len(sys.argv) == 2:
 #     subreddit = sys.argv[-1]
 # elif len(sys.argv)>2:
@@ -85,8 +94,14 @@ subreddit = "analog"  # default subreddit if no cl args given
 #     exit()
 
 while True:
+    # for some reason if you try to set wallpaper while screen is locked
+    # it bugs out and any subsequent settings even if locked in are prevented
+    time.sleep(5)
+    while isScreenLocked():
+        print("screen is locked")
+        time.sleep(10)
     try:
         main(subreddit.lower())
     except Exception as e:
         print(e)
-    time.sleep(10)  # seconds
+    time.sleep(60)  # seconds
