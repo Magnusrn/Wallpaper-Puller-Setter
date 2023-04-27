@@ -1,5 +1,4 @@
 import praw
-import sys
 import requests
 import os
 import time
@@ -9,7 +8,6 @@ import Quartz
 import hashlib
 import glob
 from secrets import CLIENT_ID, CLIENT_SECRET, USER_AGENT
-from appscript import app, mactypes
 
 
 def main(subreddit):
@@ -17,9 +15,8 @@ def main(subreddit):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         user_agent=USER_AGENT)
-    image_path = os.path.join(os.path.dirname(__file__), "wallpaper.jpg")
 
-    for submission in reddit.subreddit(subreddit).top("day"):
+    for submission in reddit.subreddit(subreddit).top(time_filter="day"):
         if submission.url.endswith(".jpg"):
             file = requests.get(submission.url)
             remote_url = submission.url
@@ -30,22 +27,23 @@ def main(subreddit):
         print("No .jpg images in the r/%s subreddit" % subreddit)
         quit()
 
-    # def md5Checksum(filePath, url):
-    #     m = hashlib.md5()
-    #     if url is None:
-    #         with open(filePath, 'rb') as fh:
-    #             m = hashlib.md5()
-    #             while True:
-    #                 data = fh.read(8192)
-    #                 if not data:
-    #                     break
-    #                 m.update(data)
-    #             return m.hexdigest()
-    #     else:
-    #         r = requests.get(url)
-    #         for data in r.iter_content(8192):
-    #             m.update(data)
-    #         return m.hexdigest()
+    def md5Checksum(filePath, url):
+        m = hashlib.md5()
+        if url is None:
+            with open(filePath, 'rb') as fh:
+                m = hashlib.md5()
+                while True:
+                    data = fh.read(8192)
+                    if not data:
+                        break
+                    m.update(data)
+                return m.hexdigest()
+        else:
+            r = requests.get(url)
+            for data in r.iter_content(8192):
+                m.update(data)
+            return m.hexdigest()
+
     #
     # def images_identical():  # compares local image to remote
     #     if md5Checksum(image_path, None) == md5Checksum(None, remote_url):
@@ -62,15 +60,15 @@ def main(subreddit):
     # else:
     #     print()()("no file in folder")
 
-    def set_desktop_background_app():
-        os.system("open SetWallpaper.app")
-
     def set_desktop_background():
-        abspath = os.path.abspath("wallpaper.jpg")
+        list_of_files = glob.glob(os.path.dirname(__file__) + "/images/*.jpg")
+        latest_image = max(list_of_files, key=os.path.getctime)
         # what the fuck is this apostrophe nightmare
-        script = f"""osascript -e 'tell application "Finder" to set desktop picture to POSIX file "{abspath}"'"""
+        script = f"""osascript -e 'tell application "Finder" to set desktop picture to POSIX file "{latest_image}"'"""
         subprocess.Popen(script, shell=True)
 
+    image_hash = md5Checksum(None, remote_url)
+    image_path = os.path.join(os.path.dirname(__file__), "images", f"{image_hash}.jpg")
     with open(image_path, "wb") as f:
         f.write(file.content)
         try:
@@ -96,7 +94,6 @@ def isScreenLocked():
 while True:
     # for some reason if you try to set wallpaper while screen is locked
     # it bugs out and any subsequent settings even if locked in are prevented
-    time.sleep(5)
     while isScreenLocked():
         print("screen is locked")
         time.sleep(10)
